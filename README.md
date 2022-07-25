@@ -5,30 +5,6 @@ can be used to connect to and manager private resources with Terraform (i.e.
 connecting to our database directly from Terraform with the Postgresql 
 provider).
 
-## Usage
-
-```hcl
-provider "kubernetes" {
-  # Context to choose from the config file, if needed.
-  config_context = "example-context"
-  version        = "~> 1.12"
-}
-
-module "tfc_agent" {
-  source = "https://github.com/cloudposse/terraform-kubernetes-tfc-cloud-agent.git?ref=master"
-
-  # Your agent token generated in Terraform Cloud
-  token       = var.tfc_agent_token
-  namespace   = var.namespace
-  stage       = var.stage
-  environment = var.environment
-  name        = var.name
-
-  # You can specify a namespace other than "default"
-  kubernetes_namespace = "tfc-agent"
-}
-```
-
 ## Copyrights
 
 Copyright © 2022 Whatnot, Inc.

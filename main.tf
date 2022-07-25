@@ -1,6 +1,6 @@
 locals {
-  service_account_name = "${var.deployment_name}-${var.tfc_agent_name}"
-  deployment_name      = "${var.deployment_name}-${var.tfc_agent_name}"
+  service_account_name = var.deployment_name
+  deployment_name      = var.deployment_name
 
   namespace = var.kubernetes_namespace
 }
