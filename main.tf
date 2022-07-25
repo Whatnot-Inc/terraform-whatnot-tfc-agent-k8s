@@ -1,13 +1,11 @@
 locals {
   service_account_name = var.deployment_name
   deployment_name      = var.deployment_name
-
-  namespace = var.kubernetes_namespace
 }
 
 resource "tfe_agent_pool" "this" {
-  organization = "whatnottfc"
-  name         = var.tfc_agent_name
+  organization = var.tfc_organization_name
+  name         = local.deployment_name
 }
 
 resource "tfe_agent_token" "this" {
@@ -17,14 +15,14 @@ resource "tfe_agent_token" "this" {
 
 resource "kubernetes_namespace" "namespace" {
   metadata {
-    name = local.namespace
+    name = var.kubernetes_namespace
   }
 }
 
 resource "kubernetes_service_account" "service_account" {
   metadata {
     name        = local.service_account_name
-    namespace   = local.namespace
+    namespace   = kubernetes_namespace.namespace.metadata.name
     annotations = var.service_account_annotations
   }
 }
@@ -32,7 +30,7 @@ resource "kubernetes_service_account" "service_account" {
 resource "kubernetes_secret" "secret" {
   metadata {
     name      = local.deployment_name
-    namespace = local.namespace
+    namespace = kubernetes_namespace.namespace.metadata.name
   }
 
   data = {
