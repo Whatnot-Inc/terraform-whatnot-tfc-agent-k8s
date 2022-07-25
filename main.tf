@@ -22,7 +22,7 @@ resource "kubernetes_namespace" "namespace" {
 resource "kubernetes_service_account" "service_account" {
   metadata {
     name        = local.service_account_name
-    namespace   = kubernetes_namespace.namespace.metadata.name
+    namespace   = kubernetes_namespace.namespace.metadata[0].name
     annotations = var.service_account_annotations
   }
 }
@@ -30,7 +30,7 @@ resource "kubernetes_service_account" "service_account" {
 resource "kubernetes_secret" "secret" {
   metadata {
     name      = local.deployment_name
-    namespace = kubernetes_namespace.namespace.metadata.name
+    namespace = kubernetes_namespace.namespace.metadata[0].name
   }
 
   data = {
@@ -41,7 +41,7 @@ resource "kubernetes_secret" "secret" {
 resource "kubernetes_deployment" "tfc_cloud_agent" {
   metadata {
     name      = local.deployment_name
-    namespace = local.namespace
+    namespace = kubernetes_namespace.namespace.metadata[0].name
     labels    = var.tags
   }
   spec {
@@ -52,7 +52,7 @@ resource "kubernetes_deployment" "tfc_cloud_agent" {
 
     template {
       metadata {
-        namespace   = local.namespace
+        namespace   = kubernetes_namespace.namespace.metadata[0].name
         labels      = var.tags
         annotations = var.deployment_annotations
       }

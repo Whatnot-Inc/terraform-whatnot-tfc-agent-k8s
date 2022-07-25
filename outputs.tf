@@ -4,6 +4,6 @@ output "service_account_name" {
 }
 
 output "namespace" {
-  value       = local.namespace
+  value       = kubernetes_namespace.namespace.metadata[0].name
   description = "Name of the Kubernetes namespace"
 }
