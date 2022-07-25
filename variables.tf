@@ -1,19 +1,36 @@
+variable "agent_image" {
+  type        = string
+  default     = "hashicorp/tfc-agent:latest"
+  description = "Name and tag of Terraform Cloud Agent docker image"
+}
+
+variable "agent_cli_args" {
+  type        = list(string)
+  default     = []
+  description = "Extra command line arguments to pass to tfc-agent"
+}
+
+variable "agent_envs" {
+  type        = map(string)
+  default     = {}
+  description = "A map of any extra environment variables to pass to the TFC agent"
+}
+
+variable "deployment_annotations" {
+  type        = map(string)
+  default     = {}
+  description = "Annotations to add to the Kubernetes deployment"
+}
+
 variable "deployment_name" {
   type        = string
-  default     = null
-  description = "Override the deployment name in Kubernetes"
+  default     = "tfc-agent"
+  description = "The deployment name in Kubernetes"
 }
 
 variable "kubernetes_namespace" {
   type        = string
-  default     = null
-  description = "Kubernetes namespace override"
-}
-
-variable "namespace_creation_enabled" {
-  type        = bool
-  default     = false
-  description = "Enable this if the Kubernetes namespace does not already exist"
+  description = "The Kubernetes namespace the agent will be deployed in."
 }
 
 variable "replicas" {
@@ -22,45 +39,40 @@ variable "replicas" {
   description = "Number of replicas in the Kubernetes deployment"
 }
 
-variable "deployment_annotations" {
-  type        = map
-  default     = {}
-  description = "Annotations to add to the Kubernetes deployment"
+variable "resource_limits_cpu" {
+  type        = string
+  default     = "1"
+  description = "Kubernetes deployment resource hard CPU limit"
+}
+
+variable "resource_limits_memory" {
+  type        = string
+  default     = "512Mi"
+  description = "Kubernetes deployment resource hard memory limit"
+}
+
+variable "resource_requests_cpu" {
+  type        = string
+  default     = "250m"
+  description = "Kubernetes deployment resource CPU requests"
+}
+
+variable "resource_requests_memory" {
+  type        = string
+  default     = "50Mi"
+  description = "Kubernetes deployment resource memory requests"
 }
 
 variable "service_account_annotations" {
-  type        = map
+  type        = map(string)
   default     = {}
   description = "Annotations to add to the Kubernetes service account"
 }
 
-variable "agent_image" {
-  type        = string
-  default     = "hashicorp/tfc-agent:latest"
-  description = "Name and tag of Terraform Cloud Agent docker image"
-}
-
-variable "agent_cli_args" {
-  type        = list
-  default     = []
-  description = "Extra command line arguments to pass to tfc-agent"
-}
-
-variable "agent_envs" {
-  type        = map
+variable "tags" {
+  description = "Additional metadata tags."
   default     = {}
-  description = "A map of any extra environment variables to pass to the TFC agent"
-}
-
-variable "tfc_agent_token" {
-  type        = string
-  default     = ""
-  description = <<-EOF
-    The agent token to use when making requests to the Terraform Cloud API.
-    This token must be obtained from the API or UI.  It is recommended to use
-    the environment variable whenever possible for configuring this setting due
-    to the sensitive nature of API tokens.
-  EOF
+  type        = map(string)
 }
 
 variable "tfc_agent_log_level" {
@@ -81,6 +93,12 @@ variable "tfc_agent_data_dir" {
     important to ensure that the given directory is backed by plentiful
     storage.
   EOF
+}
+
+variable "tfc_agent_name" {
+  type        = string
+  default     = null
+  description = "The name of the Terraform Cloud Agent (will be displayed in the TFC console)."
 }
 
 variable "tfc_agent_single" {
@@ -106,26 +124,8 @@ variable "tfc_address" {
   description = "The HTTP or HTTPS address of the Terraform Cloud API."
 }
 
-variable "resource_limits_cpu" {
+variable "tfc_organization_name" {
   type        = string
-  default     = "1"
-  description = "Kubernetes deployment resource hard CPU limit"
-}
-
-variable "resource_limits_memory" {
-  type        = string
-  default     = "512Mi"
-  description = "Kubernetes deployment resource hard memory limit"
-}
-
-variable "resource_requests_cpu" {
-  type        = string
-  default     = "250m"
-  description = "Kubernetes deployment resource CPU requests"
-}
-
-variable "resource_requests_memory" {
-  type        = string
-  default     = "50Mi"
-  description = "Kubernetes deployment resource memory requests"
+  default     = "whatnottfc"
+  description = "The Terraform Cloud organization name."
 }

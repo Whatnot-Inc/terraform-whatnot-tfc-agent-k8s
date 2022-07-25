@@ -1,20 +1,27 @@
 locals {
-  service_account_name = coalesce(var.deployment_name, module.this.id, "tfc-agent")
-  deployment_name      = coalesce(var.deployment_name, module.this.id, "tfc-agent")
+  service_account_name = "${var.deployment_name}-${var.tfc_agent_name}"
+  deployment_name      = "${var.deployment_name}-${var.tfc_agent_name}"
 
-  namespace = coalesce(var.kubernetes_namespace, "default")
+  namespace = var.kubernetes_namespace
+}
+
+resource "tfe_agent_pool" "this" {
+  organization = "whatnottfc"
+  name         = var.tfc_agent_name
+}
+
+resource "tfe_agent_token" "this" {
+  agent_pool_id = tfe_agent_pool.this.id
+  description   = var.tfc_agent_name
 }
 
 resource "kubernetes_namespace" "namespace" {
-  count = var.namespace_creation_enabled ? 1 : 0
   metadata {
     name = local.namespace
   }
 }
 
 resource "kubernetes_service_account" "service_account" {
-  count = module.this.enabled ? 1 : 0
-
   metadata {
     name        = local.service_account_name
     namespace   = local.namespace
@@ -29,28 +36,26 @@ resource "kubernetes_secret" "secret" {
   }
 
   data = {
-    token = var.tfc_agent_token
+    token = tfe_agent_token.this.token
   }
 }
 
 resource "kubernetes_deployment" "tfc_cloud_agent" {
-  count = module.this.enabled ? 1 : 0
-
   metadata {
     name      = local.deployment_name
     namespace = local.namespace
-    labels    = module.this.tags
+    labels    = var.tags
   }
   spec {
     selector {
-      match_labels = module.this.tags
+      match_labels = var.tags
     }
     replicas = var.replicas
 
     template {
       metadata {
         namespace   = local.namespace
-        labels      = module.this.tags
+        labels      = var.tags
         annotations = var.deployment_annotations
       }
       spec {
@@ -71,7 +76,7 @@ resource "kubernetes_deployment" "tfc_cloud_agent" {
           }
           env {
             name  = "TFC_AGENT_NAME"
-            value = coalesce(module.this.id, "tfc-agent")
+            value = var.tfc_agent_name
           }
           env {
             name  = "TFC_AGENT_LOG_LEVEL"
@@ -104,11 +109,11 @@ resource "kubernetes_deployment" "tfc_cloud_agent" {
             }
           }
           resources {
-            limits {
+            limits = {
               cpu    = var.resource_limits_cpu
               memory = var.resource_limits_memory
             }
-            requests {
+            requests = {
               cpu    = var.resource_requests_cpu
               memory = var.resource_requests_memory
             }
