@@ -94,10 +94,15 @@ variable "tfc_agent_data_dir" {
     storage.
   EOF
 }
+variable "tfc_agent_disable_update" {
+  type        = bool
+  default     = false
+  description = "Disable automatic core updates."
+}
+
 
 variable "tfc_agent_name" {
   type        = string
-  default     = null
   description = "The name of the Terraform Cloud Agent (will be displayed in the TFC console)."
 }
 
@@ -112,20 +117,13 @@ variable "tfc_agent_single" {
   EOF
 }
 
-variable "tfc_agent_disable_update" {
-  type        = bool
-  default     = false
-  description = "Disable automatic core updates."
+variable "tfc_agent_token" {
+  type        = string
+  description = "The token for the agent to connect to TFC."
 }
 
 variable "tfc_address" {
   type        = string
   default     = "https://app.terraform.io"
   description = "The HTTP or HTTPS address of the Terraform Cloud API."
-}
-
-variable "tfc_organization_name" {
-  type        = string
-  default     = "whatnottfc"
-  description = "The Terraform Cloud organization name."
 }

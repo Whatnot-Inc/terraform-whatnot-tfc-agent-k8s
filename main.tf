@@ -3,16 +3,6 @@ locals {
   deployment_name      = var.deployment_name
 }
 
-resource "tfe_agent_pool" "this" {
-  organization = var.tfc_organization_name
-  name         = local.deployment_name
-}
-
-resource "tfe_agent_token" "this" {
-  agent_pool_id = tfe_agent_pool.this.id
-  description   = var.tfc_agent_name
-}
-
 resource "kubernetes_namespace" "namespace" {
   metadata {
     name = var.kubernetes_namespace
@@ -34,7 +24,7 @@ resource "kubernetes_secret" "secret" {
   }
 
   data = {
-    token = tfe_agent_token.this.token
+    token = var.tfc_agent_token
   }
 }
 
